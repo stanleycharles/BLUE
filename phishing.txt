@@ -16,3 +16,7 @@ https://www.phishtool.com 💥 (fraud / app software)
 https://mxtoolbox.com (alt)
 https://phishtank.com (alt)
 https://www.spamhaus.org (alt)
+
+spf: https://dmarcian.com/spf-syntax-table (protection / security)
+dmarc: https://dmarcian.com/domain-checker 
+dkim: https://help.returnpath.com/hc/en-us/articles/222481088-DKIM-DNS-record-overview
