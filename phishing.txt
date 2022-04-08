@@ -1,0 +1,19 @@
+## Phishing Analysis
+
+Site: 
+https://toolbox.googleapps.com/apps/messageheader/analyzeheader (header)
+https://mha.azurewebsites.net (header)
+https://mailheader.org (header)
+https://ipinfo.io (ip analyzer)
+https://urlscan.io (url analyzer)
+https://talosintelligence.com/reputation_center (ip reputation)
+https://www.convertcsv.com/url-extractor.htm (url extractor)
+https://www.virustotal.com (virus / malware detection)
+https://app.any.run (malware sandbox)
+https://www.hybrid-analysis.com (malware analyzer)
+https://www.joesecurity.org (malware analyzer)
+https://www.phishtool.com (fraud / app software)
+
+https://mxtoolbox.com
+https://phishtank.com
+https://www.spamhaus.org
