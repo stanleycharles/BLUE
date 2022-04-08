@@ -13,7 +13,6 @@ https://app.any.run 💥 (malware sandbox)
 https://www.hybrid-analysis.com (malware analyzer)
 https://www.joesecurity.org (malware analyzer)
 https://www.phishtool.com 💥 (fraud / app software)
-
 https://mxtoolbox.com (alt)
 https://phishtank.com (alt)
 https://www.spamhaus.org (alt)
