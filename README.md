@@ -1,4 +1,4 @@
 # BLUE
 Defensive Methodology / SIEM / EDR / XDR
 
- - BOTS by splunk : https://bots.splunk.com
+ - BOTS by Splunk : https://bots.splunk.com
