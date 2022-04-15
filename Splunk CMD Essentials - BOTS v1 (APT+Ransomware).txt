@@ -1,0 +1,366 @@
+Kill Chain Splunk Case [BOTS v1 / THM]
+
+link: https://www.aldeid.com/wiki/TryHackMe-BP-Splunk
+
+
+CASE 1 - A P T
+
+
+### Reconnaisance 
+
+
+[ target: imreallynotbatman.com
+src: 40.80.148.42 (attack, server pwmd (team server)
+dest: 192.168.250.70 (imreallynotbatman.com db) ]
+
+
+* | stats count by index 
+# ("botsv1" is the prime data)
+
+
+* index="botsv1" 
+| stats count by source 
+| sort -count
+| head 10
+# (sysmon)
+
+index=botsv1 imreallynotbatman.com sourcetype=stream:http 
+| stats count by src_ip 
+| sort -count
+#(Top IPs)
+
+
+index=botsv1 imreallynotbatman.com sourcetype=stream:http src_ip="40.80.148.42" 
+| stats count by  src_headers 
+| sort -count 
+| head 3
+
+
+### Weaponisation
+
+
+OSINT IPs
+https://www.robtex.com
+https://threatcrowd.org
+https://www.virustotal.com
+
+index=botsv1 imreallynotbatman.com sourcetype=stream:http src_ip="40.80.148.42" 
+| stats count by http_method 
+| sort -count
+#(Bruteforce search)
+
+
+### Delivery
+
+
+OSINT (Hash, md5)
+https://www.threatminer.org/
+https://www.virustotal.com/
+https://www.hybrid-analysis.com/
+
+
+### Exploitation
+
+
+" If we pivot to look at the http_method of these requests, we see nearly twice as many POSTs as GETs. 
+Since we are talking about a brute force password attack of a web site, 
+what is the most likely http method for this kind of attack? "
+
+Bruteforce = Look http method = Post > Get
+
+index=botsv1 sourcetype=stream:http dest="192.168.250.70" http_method=POST form_data=*username*passwd*
+|table form_data
+#(BF web app attempt)
+
+index=botsv1 imreallynotbatman.com sourcetype=stream:http src_ip="40.80.148.42" http_method="POST" username 
+| table dest_content 
+| head 1
+#(Http page plaintext)
+
+index=botsv1 sourcetype=stream:http dest="192.168.250.70" http_method=POST form_data=*username*passwd* 
+|stats count by src
+#(BF TOP src IPs)
+
+index=botsv1 sourcetype=stream:http form_data=*username*passwd* 
+|table _time form_data 
+|reverse
+#(1st BF attack in list order)
+
+[OR]
+
+index=botsv1 imreallynotbatman.com sourcetype=stream:http http_method="POST" form_data=*username*passwd* 
+| rex field=form_data "username=(?<u>\w+)" 
+| rex field=form_data "passwd=(?<p>\w+)" 
+| table _time, u, p 
+| sort by _time
+| head 5
+
+index=botsv1 sourcetype=stream:http http_method=POST 
+| rex field=form_data "passwd=(?<userpassword>\w+)" 
+|search userpassword=* 
+| reverse 
+| head 1 
+| table userpassword
+#(the 1st attack PW in one shot)
+
+index=botsv1 sourcetype=stream:http form_data=*username*passwd* 
+| rex field=form_data "passwd=(?<userpassword>\w+)" 
+| head 10 
+| table userpassword
+#(TOP 10 pw attack list)
+
+index=botsv1 sourcetype=stream:http form_data=*username*passwd* 
+| rex field=form_data "passwd=(?<userpassword>\w+)" 
+| eval lenpword=len(userpassword) 
+| search lenpword=6 
+| table userpassword lenpword
+#(all pw equal to 6 characters)
+
+index=botsv1 sourcetype=stream:http form_data=*username*passwd*
+| rex field=form_data "passwd=(?<userpassword>\w+)"
+| eval lenpword=len(userpassword)
+| search lenpword=6
+| eval password=lower(userpassword)
+| lookup coldplay.csv song as password OUTPUTNEW song
+| search song=*
+| table song
+#(specific request w/ csv file (coldplay song, pw 6 characters = yellow)
+
+
+index=botsv1 sourcetype=stream:http form_data=*username*passwd* dest_ip=192.168.250.70 
+| rex field=form_data "passwd=(?<userpassword>\w+)"
+| stats count values(src) by userpassword 
+| sort - count
+#(find the admin + src ip (count 2 for success) pw w/ the dest ip)
+
+[OR]
+
+index=botsv1 imreallynotbatman.com sourcetype=stream:http http_method="POST" form_data=*username*passwd* 
+| rex field=form_data "passwd=(?<p>\w+)" 
+| stats count by p 
+| where count>1
+| table p
+
+index=botsv1 sourcetype=stream:http form_data=*username*passwd* dest_ip=192.168.250.70 src=40.80.148.42 
+| rex field=form_data "passwd=(?<userpassword>\w+)"
+| search userpassword=* 
+| table _time uri userpassword
+#(find the login.php URL + the time + the pw)
+
+index=botsv1 sourcetype=stream:http http_method=POST 
+| rex field=form_data "passwd=(?<userpassword>\w+)" 
+| search userpassword=* 
+| eval mylen=len(userpassword) 
+| stats avg(mylen) as avg_len_http 
+| eval avg_len_http=round(avg_len_http,0)
+#(Calculating the Average Password Length)
+
+index=botsv1 sourcetype=stream:http
+| rex field=form_data "passwd=(?<userpassword>\w+)" 
+| search userpassword=batman 
+| table _time userpassword src
+#(Find the Password Used Multiple Times in the Brute Force Attack)
+
+index=botsv1 sourcetype=stream:http
+| rex field=form_data "passwd=(?<userpassword>\w+)" 
+| search userpassword=batman 
+| transaction userpassword 
+| table duration
+#(The duration between these 2 events...)
+
+index=botsv1 sourcetype=stream:http
+| rex field=form_data "passwd=(?<userpassword>\w+)" 
+| stats count(userpassword)
+#(Count of Passwords Attempted)
+
+index=botsv1 sourcetype=stream:http
+| rex field=form_data "passwd=(?<userpassword>\w+)" 
+| stats dc(userpassword)
+#(Distinct Passwords Attempted)
+
+
+### Installation
+
+
+index=botsv1 sourcetype=suricata (dest=imreallynotbatman.com OR dest="192.168.250.70") http.http_method=POST .exe
+#(find the .exe investigation, When Destination and Destination IP are Different)
+
+
+index=botsv1 3791.exe sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational
+#(win sysmon analyze)
+
+index=botsv1 3791.exe CommandLine=3791.exe
+
+[B2B]
+
+index=botsv1 3791.exe CommandLine=3791.exe 
+| stats values(MD5)
+#(find the unique hash)
+
+[OR]
+
+index=botsv1 3791.exe sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" CommandLine="3791.exe"
+| rex field=_raw MD5="(?<md5sum>\w+)" 
+| table md5sum
+
+
+### Command & Control
+
+index=botsv1 dest=23.22.63.114 "poisonivy-is-coming-for-you-batman.jpeg" src=192.168.250.70 sourcetype=stream:http
+#(investigation jpeg file + id the src et dest ips )
+
+index=botsv1 answer=23.22.63.114 sourcetype=stream:dns | stats values("name{}")
+#(find the dns name of the attaker)
+
+### Actions on Objectives
+
+index=botsv1 sourcetype=fgt_utm "192.168.250.70" NOT dest="192.168.250.70" | stats count
+#(Destination is not 192.168.250.70)
+
+index=botsv1 sourcetype=fgt_utm "192.168.250.70" NOT src="192.168.250.70" |stats count
+#(Source is not 192.168.250.70)
+
+index=botsv1 sourcetype=fgt_utm "192.168.250.70" NOT dest="192.168.250.70" category="Malicious Websites"
+#UTM(Unified Threat Management) devices (or next-generation firewalls) = 3 logs detected )
+
+
+### CASE 1 - APT Summary 
+
+
+Based on our investigation, we can piece together what our adversary did: 
+* Scanned for vulnerabilities 
+* Found site is running Joomla 
+* Performed a brute force password scan, logged into Joomla, installed file upload modules 
+* Uploaded webshell * Used webshell to upload reverse TCP shell * Connected via metasploit 
+* Tried to move around but couldn’t get out of locked down Windows 2012R2 
+* Defaced website with downloaded defacement image
+
+
+------------------------------------------------------------------
+
+
+CASE 2 - R A N S O M W A R E
+
+
+### emun logs
+
+
+index=botsv1 we8105desk 
+#(emun host, sourcetype, win sysmon)
+
+index=botsv1 we8105desk sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational
+#(analyze src v src_ip v src_host)
+
+index=botsv1 sourcetype=winregistry friendlyname
+#(find a USB connection in windows registry)
+
+index=botsv1 sourcetype=winregistry friendlyname | table host object data
+#(looking for USB username)
+
+[OR]
+
+index=botsv1 sourcetype=WinRegistry friendlyname 
+| stats count by registry_value_data
+
+index=botsv1 sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational host=we8105desk "d:\\" | reverse
+#(looking for local disk d:\\...)
+
+index=botsv1 sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational host=we8105desk (CommandLine="*d:\\*" OR ParentCommandLine="*d:\\*") 
+#(Refining Our Search To Find D:\ ONLY in Command and Parent Command Line = "D:\Miranda_Tate_unveiled.dotm" = Malicious = Office Macros)
+
+index=botsv1 sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational host=we8105desk src=we8105desk.waynecorpinc.local 
+| stats count by dest_ip 
+| sort - count
+#(looking for the suspicious insider attacker = 2 IPs w/ lots of logs)
+
+index=botsv1 sourcetype=winregistry host=we8105desk fileshare
+#(Identify Top key_path Values in winregistry for Infected Host)
+
+index=botsv1 sourcetype=stream:DNS src=192.168.250.100 record_type=A
+#(lookup dns record A = ipv4 for some clues = microsoft)
+
+index=botsv1 sourcetype=stream:DNS src=192.168.250.100 record_type=A NOT (query{}=*.microsoft.com OR query{}=*.waynecorpinc.local OR query{}=*.bing.com) 
+| stats count by query{} 
+| sort - 10 count
+#(Excluding Well Known Domains From Our Search)
+
+index=botsv1 sourcetype=stream:DNS src=192.168.250.100 record_type=A NOT (query{}=*.microsoft.com OR query{}=*.waynecorpinc.local OR query{}=*.bing.com OR query{}=*.windows.com OR query{}=*.msftncsi.com) 
+| stats count by query{} 
+| sort - 10 count
+#(refine the search to exclude all microsoft Urls) 
+
+index=botsv1 sourcetype=stream:DNS src=192.168.250.100 record_type=A NOT (query{}=*.microsoft.com OR query{}=*.waynecorpinc.local OR query{}=*.bing.com OR query{}=isatap OR query{}=wpad OR query{}=*.windows.com OR query{}=*.msftncsi.com) 
+| table _time query{} src dest 
+| reverse
+#(refine all the white lists after google like wpad, isatap)
+
+index=botsv1 sourcetype=stream:http src=192.168.250.100 
+| stats count values(url) by dest
+#(Identifying URLs and Count By Destination = looking up the Cerber ransomware cryptor code payload)
+
+[OR]
+
+index=botsv1 sourcetype=suricata src=192.168.250.100 url=* 
+| stats count values(url) by dest
+
+index=botsv1 sourcetype=suricata src=192.168.250.100 url=/mhtr.jpg | table _time src dest http.hostname
+#(Narrow the payload + ips/dns)
+
+[OR]
+
+index=botsv1 sourcetype=stream:http src=192.168.250.100 url=*mhtr.jpg* | table _time src dest url
+
+index=botsv1 sourcetype=fgt_utm src=192.168.250.100 mhtr.jpg | table _time src dest msg url action
+#(UTM classic detection)
+
+index=botsv1 sourcetype=fgt_utm src=192.168.250.100 app="Cerber.Botnet" | reverse
+#(UTM app detection = 3 logs)
+
+index=botsv1 sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational 121214.tmp
+#(looking the parent process ID of the suspicious file 121214.tmp)
+
+index=botsv1 sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational 121214.tmp CommandLine=* 
+| table CommandLine ProcessId ParentProcessId ParentCommandLine 
+| reverse
+#(refine the file 121214.tmp)
+
+index=botsv1 sourcetype=suricata alert.signature=*cerber*
+#(search signatures - Suricata Signatures that Reference Cerber)
+
+index=botsv1 sourcetype=suricata alert.signature=*cerber* 
+| stats count by alert.signature alert.signature_id 
+| sort count
+#(Suricata Signature and IDs That Reference Cerber Sorted Lowest to Highest - alert signatures)
+
+index=botsv1 sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational host=we8105desk *.txt
+#(Identify Sysmon EventCode .txt = encryption ?)
+
+index=botsv1 sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational host=we8105desk EventCode=2 TargetFilename="C:\\Users\\bob.smith.WAYNECORPINC\\*.txt"
+#(refine the search w/ the suspicious insider username)
+
+index=botsv1 sourcetype=XmlWinEventLog:Microsoft-Windows-Sysmon/Operational host=we8105desk EventCode=2 TargetFilename="C:\\Users\\bob.smith.WAYNECORPINC\\*.txt" 
+| stats dc(TargetFilename)
+#(we are asked about the number of text files that were encrypted)
+
+index=botsv1 sourcetype=*win* pdf
+#(Identify the PDFs for Windows by host = 512)
+
+[OR]
+
+index=botsv1 sourcetype=*win* pdf dest=we9041srv.waynecorpinc.local
+#(Identify the PDFs for Windows by dest)
+
+
+index=botsv1 sourcetype=*win* pdf dest=we9041srv.waynecorpinc.local Source_Address=192.168.250.100 
+| stats dc(Relative_Target_Name)
+#(Identify Distinct Count of PDFs = PDFS encrypted = 257)
+
+
+index=botsv1 sourcetype=stream:DNS src=192.168.250.100 record_type=A NOT (query{}=*.microsoft.com OR query{}=*.waynecorpinc.local OR query{}=*.bing.com OR query{}=isatap OR query{}=wpad OR query{}=*.windows.com OR query{}=*.msftncsi.com) 
+| table _time query{} src dest
+#(It appears the last DNS A record query originating from our source IP is going to this lovely domain that starts with "cerber" in the name)
+#("cerberhhyed5frqa.xmfir0.win")
+
+
+
+
