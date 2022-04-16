@@ -1,0 +1,90 @@
+OSINT [BOTS v2 / THM]
+
+
+
+### Ransomware case
+
+
+
+The questions start with an individual named Mallory, her MacBook, and some encrypted files. 
+
+
+index="botsv2" mallory
+#(enum)
+
+index="botsv2" host="NAME_MACBOOK"
+#(lookup devices)
+
+index="botsv2" host="NAME_MACBOOK" (*.ppt OR *.pptx)
+#(lookup files)
+
+index="botsv2" host="NAME_MACBOOK" *.crypt
+#(lookup files already encrypted like .pdf.crypt / .txt.crypt)
+
+index="botsv2" host="MACLORY-AIR13" sourcetype=ps *.crypt NOT *.pdf
+#(refine the search)
+
+
+Next task, you need to provide the name of 
+the manufacturer of the USB drive Kevin used on Mallory's personal MacBook (kutekitten). 
+
+
+index="botsv2" kutekitten
+#(enum)
+
+index="botsv2" kutekitten sourcetype=osquery_results
+#(search for malwarwe clues)
+
+index="botsv2" kutekitten "\\/Users\\/mkraeusen" sourcetype=osquery_results "columns.target_path"="/Users/mkraeusen/Downloads/Important_HR_INFO_for_mkraeusen"
+#(refine search to id the malware)
+
+index="botsv2" kutekitten usb
+#(refine the search the opt 60sec before the attack, and take the USB model & vendor id = Devicehunt.com)  )
+ 
+
+
+### FTP investigation
+
+
+
+You're tasked to find the name of the attachment sent to Frothly by the malicious APT actor. This will involve events related to emails.
+
+
+index="botsv2" sourcetype="stream:smtp" *.zip
+| reverse
+#(lookup the malicious file & some clues)
+
+index="botsv2" sourcetype="stream:tcp" 45.77.65.211
+#(Analyzer the attack source)
+
+
+Next task, find an unusual file that was downloaded with winsys32.dll.
+
+index="botsv2" winsys32.dll
+
+index="botsv2" sourcetype="stream:ftp"
+#(refine enum)
+
+index="botsv2" sourcetype="stream:ftp" method=RETR
+| reverse
+#("file successfully transferred" clues)
+
+index="botsv2" sourcetype="stream:ftp" method=RETR
+| reverse
+| table method_parameter
+#(lookup weird typo files)
+
+index="botsv2" schtasks.exe
+#(enum specific .exe file)
+
+index="botsv2" schtasks.exe sourcetype="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational"
+| dedup ParentCommandLine
+| table ParentCommandLine CommandLine
+#(lookup powershell cmd line in detail)
+
+index="botsv2" source=WinRegistry "\\Software\\Microsoft\\Network"
+| reverse
+#(decode the Base64 content that we found = Cyberchef)
+
+
+
