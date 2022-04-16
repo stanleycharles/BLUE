@@ -1,0 +1,172 @@
+AWS, Crytomining, OneDrive, Endpoints [BOTS v3 / THM]
+
+
+
+link: https://www.jamesgibbins.com/articles/digital-forensics/botsv3/
+
+
+
+### AWS x Splunk Investigation
+
+
+
+You're tasked to find the IAM (Identity & Access Management) users that accessed an AWS service in Frothly's AWS environment.
+
+
+
+index="botsv3" sourcetype="aws:cloudtrail" IAMUser
+| dedup user
+| table user
+#(enum aws iam user)
+
+index="botsv3" index="botsv3" sourcetype="aws:cloudtrail" NOT tag::eventtype="authentication" "userIdentity.sessionContext.attributes.mfaAuthenticated"'false
+#(field would you use to alert that AWS API activity has occurred without MFA)
+
+index="botsv3"
+| dedup sourcetype
+| table sourcetype
+#(list all sourcetype)
+
+index="botsv3" sourcetype="hardware"
+| reverse
+#(lookup specific intel processors)
+
+index="botsv3" sourcetype="aws:cloudtrail" eventType=AwsApiCall eventName=PutBucketAcl
+| reverse
+#(the event ID of the API call that enabled public access & find the s3 bucket name=frothlywebcode, user=bstool)
+
+index="botsv3" frothlywebcode sourcetype="aws:s3:acceslogs" *PUT*
+#(the name of the text file that was successfully uploaded into the S3 bucket while it was publicly accessible)
+
+index="botsv3" sourcetype="winhostmon" source=operatingsystem
+| dedup host
+| host os
+#(lookup list os systems)
+
+index="botsv3" sourcetype="winhostmon" BSTOLL-L 
+#(the FQDN of the endpoint that is running a different Windows operating system edition than the others)
+#("BSTOLL-L.froth.ly")
+
+
+
+### AWS Access Keys (secret-keys)
+
+
+
+Identify which IAM user access key generates the most distinct errors when attempting to access IAM resources
+
+
+
+index="botsv3" sourcetype="aws:cloudtrail" user_type=IAMUser errorCode!=success eventSource="iam.amazonaws.com"
+| stats dc(errorMessage) by userIdentity.accessKeyId
+#(IAM user access key generates the most distinct errors when attempting to access IAM resources)
+
+index="botsv3" sourcetype="stream:smtp" *case*
+#(lookup a email AWS numero case + look the raw content to find clues for the secret keys = link github)
+
+index="botsv3" sourcetype="aws:cloudtrail" userIdentity.accessKeyId="akiajogcdxj5nw5pxupa" eventName=CreateAccessKey
+#(Using the leaked key, the adversary makes an unauthorized attempt to create a key for a specific resource. What is the name of that resource)
+#("nullweb_admin")
+
+index="botsv3" sourcetype="aws:cloudtrail" userIdentity.accessKeyId="akiajogcdxj5nw5pxupa" eventName="DescribeAccountAttributes"
+#(Using the leaked key, the adversary makes an unauthorized attempt to describe an account. What is the full user agent string of the application that originated the request)
+#("elasticwolf/5.1.6")
+
+
+
+### Crytomining
+
+
+
+A Frothly endpoint exhibits signs of coin mining activity (Cryptomining events)
+
+
+
+index="botsv3" sourcetype="PerfmonMK:Process" process_cpu_used_percent=100
+| table _time host process_name process_cpu_used_percent
+#(list of process who reach 100 percent CPU processor utilization time from this activity on this endpoint)
+
+index="botsv3" sourcetype="symantec=*" *coin*
+| table _time CIDS_Signature_ID host
+#(lookip signature ID of the coin miner threat according to Frothly's Symantec Endpoint Protection (SEP) data=30358)
+
+
+
+### OneDrive x Splunk Investigation
+
+
+
+You're tasked to find the user agent that uploaded a malicious link file to OneDrive. 
+You already know you have a source of antivirus; maybe that is a good place to start. 
+Another starting point is Office 365.
+
+
+
+index="botsv3" sourcetype="ms:o365:management" "WorkLoad=OneDrive" Operation=FileUpload
+| Table _time scr_ip user object UserAgent
+#(the full user agent string that uploaded the malicious link file to OneDrive)
+
+index="botsv3" sourcetype="stream:smtp" *alert* "attach_filename{}"="Malware Alert Text.txt"
+#(loopup the email, find the base64 line + decode = cyberchef or base64decode.org)
+
+index="botsv3" source="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" *xlsm*
+| reverse
+#(find the .exe of the email (image))
+
+index="botsv3" (adduser OR useradd) source="/var/log/auth.log"
+#(find user on linux systems + clues = tomcat7)
+
+index="botsv3" tomcat7 sourcetype="osquery:results"
+#(find the root pw in the raw text = ilovedavidverve)
+
+index="botsv3" source="wineventlog:security" EventCode=4720
+#(name of the user that was created after the endpoint was compromised = svcvnc)
+
+index="botsv3" source="wineventlog:security" svcvnc EventCode=4732
+#(groups was this user assigned to after the endpoint was compromised = adm, users)
+
+index="botsv3" 1337 sourcetype="osquery:results" "columns.port"=1337
+#(process ID of the process listening on a "leet" port)
+
+index="botsv3" host=FY00DOR-L source="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" EventID=1
+| table app
+| reverse
+#(find the suspicious .exe file = hdoor.exe)
+
+index="botsv3" host=FY00DOR-L  source="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" EventID=1 hdoor.exe
+#(click on the command line on the left & then Hashes = md5)
+
+
+
+### Endpoint Events
+
+
+
+you're focused on events that have mostly occurred on the endpoint. 
+
+
+
+index="botsv3" sourcetype="stream:http"
+| rare dest_port
+#(lookup the rare ips to find the attacker)
+
+index="botsv3" sourcetype="stream:http" dest_port=3333 
+#(this is the only port who sends a fake .png file = see raw text)
+
+index="botsv3" sourcetype="osquery:results" /tmp/*.*
+#(two files are remotely streamed to the /tmp directory of the on-premises Linux server by the adversary)
+
+index="botsv3" sourcetype="stream:smtp" "Grace"  
+#(find Grace's compromise work email)
+
+index="botsv3" sourcetype="stream:smtp" "Grace" sender_email="ghoppy@froth.ly"
+#(refine the search)
+
+index="botsv3" source="XmlWinEventLog:Microsoft-Windows-Sysmon/Operational" Message=*/*
+| rex field=Message "\$t\=[\'\"](?<url>[^\'\"]+)"
+| table url
+#(the path of the URL being accessed by the command and control server = "/admin/get.php")
+
+index="botsv3" "/news.php" OR "/admin/get.php" OR "/login/process.php"
+#(two Frothly endpoints contact the adversary's command and control infrastructure)
+#(fyodor-l,abungst-l)
