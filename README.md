@@ -5,3 +5,5 @@ Defensive Methodology / SIEM / EDR / XDR
  - AD Security : https://adsecurity.org
  - The DFIR Report : https://thedfirreport.com
  - MITRE ATT&CK® : https://attack.mitre.org
+ - Filesec.io : https://filesec.io
+ 
