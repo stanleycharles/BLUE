@@ -5,7 +5,7 @@ Defensive Methodology / SIEM / EDR / XDR
  - AD Security : https://adsecurity.org
  - The DFIR Report : https://thedfirreport.com
  - MITRE ATT&CK® : https://attack.mitre.org
- - CVE : https://cve.mitre.org / https://www.cve.org / https://www.cvedetails.com
+ - CVE : https://cve.mitre.org / https://www.cvedetails.com
  - Filesec.io : https://filesec.io
- - 
+ - Exploit DB - https://www.exploit-db.com
  
