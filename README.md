@@ -16,4 +16,4 @@ Defensive Methodology / SIEM / EDR / XDR
  - Dehashed : https://www.dehashed.com
 
 Softwares
- - Crownsec : https://www.crowdsec.net
+ - Crowdsec : https://www.crowdsec.net
