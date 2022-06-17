@@ -16,4 +16,6 @@ Defensive Methodology / SIEM / EDR / XDR
  - Dehashed : https://www.dehashed.com
 
 Softwares
+ - Splunk Security : https://www.splunk.com/en_us/products/cyber-security.html
+ - Elastic Security : https://www.elastic.co/fr/security
  - Crowdsec : https://www.crowdsec.net
