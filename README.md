@@ -14,3 +14,6 @@ Defensive Methodology / SIEM / EDR / XDR
  - Exploit DB - https://www.exploit-db.com
  - Have I Been Pwned : https://haveibeenpwned.com
  - Dehashed : https://www.dehashed.com
+
+Softwares
+ - Crownsec : https://www.crowdsec.net
