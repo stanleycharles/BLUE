@@ -18,6 +18,7 @@ Defensive Methodology / SIEM / EDR / XDR
  
 Tools
  - Virus Total : https://www.virustotal.com/gui/home/upload
+ - Any Run : https://app.any.run
  - Browserling : https://www.browserling.com
  - Gephi : https://gephi.org
 
