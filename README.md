@@ -10,6 +10,7 @@ Defensive Methodology / SIEM / EDR / XDR
  - CVE : https://cve.mitre.org / https://www.cvedetails.com
  - CWE : https://cwe.mitre.org
  - NVD : https://nvd.nist.gov
+ - Alien Vault : https://otx.alienvault.com
  - Filesec.io : https://filesec.io
  - Exploit DB - https://www.exploit-db.com
  - Have I Been Pwned : https://haveibeenpwned.com
@@ -19,3 +20,4 @@ Softwares
  - Splunk Security : https://www.splunk.com/en_us/products/cyber-security.html
  - Elastic Security : https://www.elastic.co/fr/security
  - Crowdsec : https://www.crowdsec.net
+ - Redline: https://www.fireeye.com/content/dam/fireeye-www/services/freeware/ug-redline.pdf
