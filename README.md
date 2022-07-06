@@ -24,6 +24,7 @@ Tools
  - Browserling : https://www.browserling.com
  - Gephi : https://gephi.org
  - MX Toolbox : https://mxtoolbox.com
+ - Emkei's Fake Mailer : http://elenco.leoalfre.altervista.org/beta/FakeMail/index.html
 
 Softwares
  - Splunk Security : https://www.splunk.com/en_us/products/cyber-security.html
