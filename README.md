@@ -23,6 +23,7 @@ Tools
  - Any Run : https://app.any.run
  - Browserling : https://www.browserling.com
  - Gephi : https://gephi.org
+ - MX Toolbox : https://mxtoolbox.com
 
 Softwares
  - Splunk Security : https://www.splunk.com/en_us/products/cyber-security.html
