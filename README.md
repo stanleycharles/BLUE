@@ -29,6 +29,7 @@ Tools
 Softwares
  - Splunk Security : https://www.splunk.com/en_us/products/cyber-security.html
  - Elastic Security : https://www.elastic.co/fr/security
+ - Wazuh : https://wazuh.com
  - Crowdsec : https://www.crowdsec.net
  - Redline : https://www.fireeye.com/content/dam/fireeye-www/services/freeware/ug-redline.pdf
  - Phistool : https://www.phishtool.com
