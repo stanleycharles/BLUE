@@ -17,6 +17,7 @@ Defensive Methodology / SIEM / EDR / XDR
  - Exploit DB - https://www.exploit-db.com
  - Have I Been Pwned : https://haveibeenpwned.com
  - Dehashed : https://www.dehashed.com
+ - UnProtect : https://www.unprotect.it
  
 Tools
  - Virus Total : https://www.virustotal.com/gui/home/upload
