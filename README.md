@@ -12,9 +12,10 @@ Defensive Methodology / SIEM / EDR / XDR
  - NVD : https://nvd.nist.gov
  - Alien Vault : https://otx.alienvault.com
  - Filesec.io : https://filesec.io
- - Lolbas - https://lolbas-project.github.io
- - WADcoms - https://wadcoms.github.io
- - Exploit DB - https://www.exploit-db.com
+ - Lolbas : https://lolbas-project.github.io
+ - WADcoms : https://wadcoms.github.io
+ - Exploit DB : https://www.exploit-db.com
+ - Ranson DB : https://www.ransom-db.com
  - Have I Been Pwned : https://haveibeenpwned.com
  - Dehashed : https://www.dehashed.com
  - UnProtect : https://www.unprotect.it
