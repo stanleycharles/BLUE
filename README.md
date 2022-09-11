@@ -32,6 +32,7 @@ Tools
  - Hurricane Electric BGP: https://bgp.he.net
  - 10minutemail: https://10minutemail.com
  - DNSPedia: https://dnpedia.com/tlds/daily.php
+ - DNSlytics : https://dnslytics.com
 
 Softwares
  - Splunk Security : https://www.splunk.com/en_us/products/cyber-security.html
