@@ -29,10 +29,11 @@ Tools
  - Gephi : https://gephi.org
  - MX Toolbox : https://mxtoolbox.com
  - Emkei's Fake Mailer : http://elenco.leoalfre.altervista.org/beta/FakeMail/index.html
- - Hurricane Electric BGP: https://bgp.he.net
- - 10minutemail: https://10minutemail.com
- - DNSPedia: https://dnpedia.com/tlds/daily.php
+ - Hurricane Electric BGP : https://bgp.he.net
+ - 10minutemail : https://10minutemail.com
+ - DNSPedia : https://dnpedia.com/tlds/daily.php
  - DNSlytics : https://dnslytics.com
+ - Namecheap : https://www.namecheap.com
 
 Softwares
  - Splunk Security : https://www.splunk.com/en_us/products/cyber-security.html
