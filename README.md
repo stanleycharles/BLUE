@@ -19,6 +19,7 @@ Defensive Methodology / SIEM / EDR / XDR
  - Have I Been Pwned : https://haveibeenpwned.com
  - Dehashed : https://www.dehashed.com
  - UnProtect : https://www.unprotect.it
+ - Grayhat Warfare : https://buckets.grayhatwarfare.com
  
 Tools
  - Virus Total : https://www.virustotal.com/gui/home/upload
