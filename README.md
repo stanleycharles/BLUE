@@ -1,4 +1,5 @@
 # BLUE
+
 Defensive Methodology / SIEM / EDR / XDR
 
  - BOTS by Splunk : https://bots.splunk.com
@@ -46,3 +47,6 @@ Softwares
  - Threat Connect : https://threatconnect.com
  - Hunter AI : https://www.hunters.ai
  - Velociraptor : https://docs.velociraptor.app
+
+Roadmap
+ - https://cyber-judo.com/security-engineer-skill-tree-certification-recommendations
